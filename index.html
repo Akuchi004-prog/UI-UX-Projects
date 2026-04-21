@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Chidiebere — UI/UX Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080a0f;
+      --surface: #0e1118;
+      --card: #13161e;
+      --border: #1e2230;
+      --accent: #5cffb0;
+      --accent2: #3d8bff;
+      --text: #e8eaf0;
+      --muted: #6b7280;
+      --tag-bg: #161b28;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* ── GLOW BLOBS ── */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .blob-1 { width: 500px; height: 500px; background: rgba(92,255,176,0.06); top: -150px; left: -100px; }
+    .blob-2 { width: 400px; height: 400px; background: rgba(61,139,255,0.07); bottom: 100px; right: -100px; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 60px;
+      background: rgba(8,10,15,0.7);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+    .nav-logo span { color: var(--accent); }
+
+    .nav-links { display: flex; gap: 36px; }
+    .nav-links a {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      z-index: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 140px 60px 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp 0.7s 0.1s forwards;
+    }
+    .hero-tag::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--accent);
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -0.04em;
+      max-width: 900px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+    h1 .outline {
+      -webkit-text-stroke: 1px rgba(255,255,255,0.25);
+      color: transparent;
+    }
+    h1 .accent { color: var(--accent); }
+
+    .hero-sub {
+      margin-top: 28px;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 480px;
+      font-weight: 300;
+      line-height: 1.7;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.35s forwards;
+    }
+
+    .hero-cta {
+      margin-top: 48px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.5s forwards;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: #080a0f;
+    }
+    .btn-primary:hover { background: #7dffc2; transform: translateY(-2px); }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+    /* ── STATS ROW ── */
+    .stats {
+      display: flex;
+      gap: 48px;
+      margin-top: 80px;
+      padding-top: 48px;
+      border-top: 1px solid var(--border);
+      opacity: 0;
+      animation: fadeUp 0.8s 0.65s forwards;
+    }
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--text);
+      letter-spacing: -0.04em;
+    }
+    .stat-num span { color: var(--accent); }
+    .stat-label { font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+    /* ── SECTION ── */
+    section {
+      position: relative;
+      z-index: 1;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 80px 60px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .section-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    /* ── FILTER TABS ── */
+    .filters {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: var(--tag-bg);
+      color: var(--muted);
+      border: 1px solid var(--border);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--accent);
+      color: #080a0f;
+      border-color: var(--accent);
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
+      animation: fadeUp 0.6s both;
+    }
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(92,255,176,0.3);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(92,255,176,0.1);
+    }
+
+    .card-thumb {
+      width: 100%;
+      aspect-ratio: 16/10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-thumb .overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      opacity: 0;
+      transition: opacity 0.25s;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.05em;
+      gap: 6px;
+    }
+    .card:hover .overlay { opacity: 1; }
+
+    /* placeholder gradient thumbs */
+    .thumb-1 { background: linear-gradient(135deg, #1a1f35 0%, #0d3b2e 100%); }
+    .thumb-2 { background: linear-gradient(135deg, #1a1225 0%, #0d1f3b 100%); }
+    .thumb-3 { background: linear-gradient(135deg, #251a0d 0%, #3b1a0d 100%); }
+    .thumb-4 { background: linear-gradient(135deg, #0d2535 0%, #0d1a25 100%); }
+    .thumb-5 { background: linear-gradient(135deg, #1a250d 0%, #252505 100%); }
+    .thumb-6 { background: linear-gradient(135deg, #25100d 0%, #1a0d25 100%); }
+
+    .card-body { padding: 20px 22px 22px; }
+
+    .card-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+    .tag {
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: var(--tag-bg);
+      color: var(--muted);
+      letter-spacing: 0.05em;
+      border: 1px solid var(--border);
+      text-transform: uppercase;
+    }
+    .tag.mobile { color: var(--accent); border-color: rgba(92,255,176,0.2); background: rgba(92,255,176,0.06); }
+    .tag.web { color: var(--accent2); border-color: rgba(61,139,255,0.2); background: rgba(61,139,255,0.06); }
+    .tag.wireframe { color: #c084fc; border-color: rgba(192,132,252,0.2); background: rgba(192,132,252,0.06); }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+    .card-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+    .card-year { font-size: 0.78rem; color: var(--muted); }
+    .card-arrow {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      color: var(--muted);
+    }
+    .card:hover .card-arrow {
+      background: var(--accent);
+      color: #080a0f;
+      border-color: var(--accent);
+    }
+
+    /* ── ABOUT ── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-text p { color: var(--muted); line-height: 1.8; margin-bottom: 16px; font-size: 0.95rem; }
+    .about-skills { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+    .skill-pill {
+      padding: 8px 18px;
+      border-radius: 100px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      background: var(--tag-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .about-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+    }
+    .about-card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.75rem;
+    }
+    .tool-list { display: flex; flex-direction: column; gap: 12px; }
+    .tool-item { display: flex; justify-content: space-between; align-items: center; }
+    .tool-name { font-size: 0.9rem; font-weight: 500; }
+    .tool-bar-wrap { flex: 1; height: 4px; background: var(--border); border-radius: 100px; margin: 0 16px; }
+    .tool-bar { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+    .tool-pct { font-size: 0.78rem; color: var(--muted); width: 32px; text-align: right; }
+
+    /* ── CONTACT ── */
+    .contact-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 64px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .contact-box::before {
+      content: '';
+      position: absolute;
+      top: -80px; left: 50%;
+      transform: translateX(-50%);
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(92,255,176,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .contact-box h2 { margin-bottom: 16px; }
+    .contact-box p { color: var(--muted); max-width: 400px; margin: 0 auto 36px; font-size: 0.95rem; }
+    .contact-links { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 28px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      .hero, section { padding-left: 24px; padding-right: 24px; }
+      .hero { padding-top: 100px; }
+      .stats { gap: 28px; flex-wrap: wrap; }
+      .about-grid { grid-template-columns: 1fr; gap: 32px; }
+      .contact-box { padding: 40px 24px; }
+      footer { flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Chi<span>.</span></div>
+    <div class="nav-links">
+      <a href="#work">Work</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">UI/UX Designer & Prototyper</div>
+    <h1>
+      Crafting<br/>
+      <span class="outline">interfaces</span> that<br/>
+      <span class="accent">actually work.</span>
+    </h1>
+    <p class="hero-sub">
+      I design thoughtful digital experiences — from mobile apps to full web systems — grounded in real user needs and clean visual logic.
+    </p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#work">View My Work ↓</a>
+      <a class="btn btn-ghost" href="#contact">Get In Touch</a>
+    </div>
+    <div class="stats">
+      <div>
+        <div class="stat-num">12<span>+</span></div>
+        <div class="stat-label">Projects</div>
+      </div>
+      <div>
+        <div class="stat-num">3<span>+</span></div>
+        <div class="stat-label">Years Designing</div>
+      </div>
+      <div>
+        <div class="stat-num">100<span>%</span></div>
+        <div class="stat-label">User-Centered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WORK -->
+  <section id="work">
+    <div class="section-header">
+      <div>
+        <div class="section-label">Selected Work</div>
+        <h2>Recent Projects</h2>
+      </div>
+      <div class="filters">
+        <button class="filter-btn active" onclick="filterCards(this, 'all')">All</button>
+        <button class="filter-btn" onclick="filterCards(this, 'mobile')">Mobile UI</button>
+        <button class="filter-btn" onclick="filterCards(this, 'web')">Web UI</button>
+        <button class="filter-btn" onclick="filterCards(this, 'wireframe')">Wireframes</button>
+      </div>
+    </div>
+
+    <div class="grid" id="cardGrid">
+
+      <div class="card" data-category="mobile" style="animation-delay:0.05s">
+        <div class="card-thumb thumb-1">
+          <span>📱</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag mobile">Mobile UI</span></div>
+          <div class="card-title">FinPay — Mobile Banking App</div>
+          <div class="card-desc">Clean, intuitive dashboard design for a Nigerian fintech app with dark and light modes.</div>
+          <div class="card-footer">
+            <span class="card-year">2024</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="web" style="animation-delay:0.1s">
+        <div class="card-thumb thumb-2">
+          <span>🌐</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag web">Web UI</span></div>
+          <div class="card-title">LMS — Learning Management Sysytem Dashboard</div>
+          <div class="card-desc">Student progress tracker with analytics charts, course cards, and notification system.</div>
+          <div class="card-footer">
+            <span class="card-year">2024</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="wireframe" style="animation-delay:0.15s">
+        <div class="card-thumb thumb-3">
+          <span>📐</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag wireframe">Wireframe</span></div>
+          <div class="card-title">MarketPlace App — User Flow</div>
+          <div class="card-desc">Lo-fi to hi-fi prototype wireframes for a peer-to-peer marketplace, including checkout flow.</div>
+          <div class="card-footer">
+            <span class="card-year">2024</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="mobile" style="animation-delay:0.2s">
+        <div class="card-thumb thumb-4">
+          <span>🎧</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag mobile">Mobile UI</span></div>
+          <div class="card-title">SoundWave — Music Streaming</div>
+          <div class="card-desc">Minimalist music player UI with playlist management, waveform visualizer, and lyrics view.</div>
+          <div class="card-footer">
+            <span class="card-year">2023</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="web" style="animation-delay:0.25s">
+        <div class="card-thumb thumb-5">
+          <span>🛒</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag web">Web UI</span></div>
+          <div class="card-title">ShopLite — E-commerce Redesign</div>
+          <div class="card-desc">Full redesign of a retail web store: product grid, cart drawer, and mobile-responsive layout.</div>
+          <div class="card-footer">
+            <span class="card-year">2023</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" data-category="wireframe" style="animation-delay:0.3s">
+        <div class="card-thumb thumb-6">
+          <span>🗺️</span>
+          <div class="overlay">🔍 View Project</div>
+        </div>
+        <div class="card-body">
+          <div class="card-tags"><span class="tag wireframe">Wireframe</span><span class="tag mobile">Mobile UI</span></div>
+          <div class="card-title">RideApp — Booking Prototype</div>
+          <img src=
+          <div class="card-desc">End-to-end prototype for a real-estate app: onboarding, map screen, and booking confirmation.</div>
+          <div class="card-footer">
+            <span class="card-year">2023</span>
+            <div class="card-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="section-label">About Me</div>
+    <div class="about-grid" style="margin-top:24px">
+      <div class="about-text">
+        <h2>Design with<br/><span style="color:var(--accent)">purpose.</span></h2>
+        <p style="margin-top:20px">
+          I'm a UI/UX designer passionate about creating digital products that solve real problems — especially in the Nigerian and African tech space.
+        </p>
+        <p>
+          My process goes from early research and wireframing all the way through high-fidelity prototypes, always keeping the user at the center of every decision.
+        </p>
+        <div class="about-skills">
+          <span class="skill-pill">Figma</span>
+          <span class="skill-pill">Prototyping</span>
+          <span class="skill-pill">User Research</span>
+          <span class="skill-pill">Design Systems</span>
+          <span class="skill-pill">HTML/CSS</span>
+          <span class="skill-pill">Mobile UI</span>
+        </div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-title">Design Proficiency</div>
+        <div class="tool-list">
+          <div class="tool-item">
+            <span class="tool-name">Figma</span>
+            <div class="tool-bar-wrap"><div class="tool-bar" style="width:92%"></div></div>
+            <span class="tool-pct">92%</span>
+          </div>
+          <div class="tool-item">
+            <span class="tool-name">Wireframing</span>
+            <div class="tool-bar-wrap"><div class="tool-bar" style="width:88%"></div></div>
+            <span class="tool-pct">90%</span>
+          </div>
+          <div class="tool-item">
+            <span class="tool-name">Mobile UI</span>
+            <div class="tool-bar-wrap"><div class="tool-bar" style="width:85%"></div></div>
+            <span class="tool-pct">85%</span>
+          </div>
+          <div class="tool-item">
+            <span class="tool-name">Web UI</span>
+            <div class="tool-bar-wrap"><div class="tool-bar" style="width:80%"></div></div>
+            <span class="tool-pct">80%</span>
+          </div>
+          <div class="tool-item">
+            <span class="tool-name">Prototyping</span>
+            <div class="tool-bar-wrap"><div class="tool-bar" style="width:78%"></div></div>
+            <span class="tool-pct">78%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-box">
+      <div class="section-label">Contact</div>
+      <h2 style="margin-top:12px">Let's work together.</h2>
+      <p>Open to freelance projects, collaborations, and design feedback. Let's build something great.</p>
+      <div class="contact-links">
+        <a class="btn btn-primary" href="akunwatachidiebere721@gmail.com">📧 Email Me</a>
+        <a class="btn btn-ghost" href="https://github.com/yourusername" target="_blank">GitHub</a>
+        <a class="btn btn-ghost" href="www.linkedin.com/in/akunwata-chidiebere" target="_blank">LinkedIn</a>
+        <a class="btn btn-ghost" href="https://www.instagram.com/chidi_ebere_good_luck/?__pwa=1" target="_blank">Instagram</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2025 Chidiebere — UI/UX Portfolio</span>
+    <span>Built with ♥ · Hosted on GitHub Pages</span>
+  </footer>
+
+  <script>
+    // ── FILTER ──
+    function filterCards(btn, category) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.card').forEach(card => {
+        const match = category === 'all' || card.dataset.category === category;
+        card.style.display = match ? 'block' : 'none';
+      });
+    }
+
+    // ── SCROLL REVEAL ──
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) e.target.style.animationPlayState = 'running'; });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.card').forEach(c => {
+      c.style.animationPlayState = 'paused';
+      observer.observe(c);
+    });
+  </script>
+
+</body>
+</html>
